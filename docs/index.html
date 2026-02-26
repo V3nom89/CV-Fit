@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CVFit — Ottimizza il tuo CV con AI in 15 secondi</title>
+  <meta name="description" content="Plugin Chrome gratuito che adatta il tuo CV a ogni offerta di lavoro con AI. Supera i filtri ATS. Più colloqui, meno sforzo." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #06060a;
+      --surface: #0e0e16;
+      --surface2: #14141f;
+      --border: #1e1e2e;
+      --accent: #7c6fef;
+      --accent2: #a78bfa;
+      --accent-glow: rgba(124, 111, 239, 0.25);
+      --green: #34d399;
+      --text: #eeeef5;
+      --muted: #6b6b80;
+      --font-display: 'Syne', sans-serif;
+      --font-body: 'Inter', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    /* ── NOISE TEXTURE OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 100;
+      padding: 16px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(6, 6, 10, 0.8);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+
+    .nav-logo {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 22px;
+      background: linear-gradient(135deg, #7c6fef, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 14px;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+
+    .btn-nav {
+      background: var(--accent);
+      color: white !important;
+      padding: 8px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px !important;
+      transition: all 0.2s !important;
+    }
+    .btn-nav:hover {
+      background: var(--accent2) !important;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 20px var(--accent-glow);
+    }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 120px 24px 80px;
+      position: relative;
+    }
+
+    .hero-glow {
+      position: absolute;
+      top: 20%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 400px;
+      background: radial-gradient(ellipse, rgba(124,111,239,0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(124,111,239,0.1);
+      border: 1px solid rgba(124,111,239,0.25);
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-size: 12px;
+      color: var(--accent2);
+      font-weight: 500;
+      margin-bottom: 28px;
+      animation: fadeUp 0.6s ease both;
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--green);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    h1 {
+      font-family: var(--font-display);
+      font-size: clamp(42px, 7vw, 86px);
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -2px;
+      margin-bottom: 24px;
+      animation: fadeUp 0.6s 0.1s ease both;
+    }
+
+    h1 .highlight {
+      background: linear-gradient(135deg, #7c6fef 0%, #a78bfa 50%, #c4b5fd 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    h1 .line2 {
+      display: block;
+      color: var(--muted);
+    }
+
+    .hero-sub {
+      font-size: clamp(16px, 2vw, 20px);
+      color: var(--muted);
+      max-width: 560px;
+      margin: 0 auto 40px;
+      line-height: 1.7;
+      animation: fadeUp 0.6s 0.2s ease both;
+    }
+
+    .hero-cta {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+      animation: fadeUp 0.6s 0.3s ease both;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--accent);
+      color: white;
+      padding: 14px 28px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 15px;
+      text-decoration: none;
+      transition: all 0.2s;
+      border: none;
+      cursor: pointer;
+    }
+    .btn-primary:hover {
+      background: var(--accent2);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px var(--accent-glow);
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: transparent;
+      color: var(--text);
+      padding: 14px 28px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 15px;
+      text-decoration: none;
+      border: 1px solid var(--border);
+      transition: all 0.2s;
+    }
+    .btn-secondary:hover {
+      border-color: var(--accent);
+      color: var(--accent2);
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 40px;
+      justify-content: center;
+      margin-top: 56px;
+      animation: fadeUp 0.6s 0.4s ease both;
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat-num {
+      font-family: var(--font-display);
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--text);
+      display: block;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* ── DEMO MOCKUP ── */
+    .demo-section {
+      padding: 80px 24px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .demo-wrapper {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .demo-wrapper::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    }
+
+    .demo-title {
+      font-family: var(--font-display);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 24px;
+    }
+
+    .demo-grid {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .demo-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .demo-card-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .demo-text {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .demo-text .highlight-word {
+      background: rgba(124,111,239,0.2);
+      color: var(--accent2);
+      border-radius: 3px;
+      padding: 1px 4px;
+    }
+
+    .demo-arrow {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding-top: 20px;
+    }
+
+    .arrow-icon {
+      font-size: 24px;
+      animation: bounce 1.5s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateX(0); }
+      50% { transform: translateX(6px); }
+    }
+
+    .score-badge {
+      background: rgba(52,211,153,0.1);
+      border: 1px solid rgba(52,211,153,0.3);
+      color: var(--green);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      font-family: var(--font-display);
+    }
+
+    /* ── HOW IT WORKS ── */
+    .section {
+      padding: 100px 24px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--accent2);
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(32px, 5vw, 52px);
+      font-weight: 800;
+      text-align: center;
+      letter-spacing: -1.5px;
+      margin-bottom: 60px;
+      line-height: 1.1;
+    }
+
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 24px;
+    }
+
+    .step-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      transition: all 0.3s;
+      position: relative;
+    }
+
+    .step-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px var(--accent-glow);
+    }
+
+    .step-num {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 18px;
+      margin-bottom: 16px;
+    }
+
+    .step-card h3 {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .step-card p {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* ── FEATURES ── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .feature-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+    }
+
+    .feature-icon {
+      font-size: 28px;
+      margin-bottom: 14px;
+    }
+
+    .feature-card h3 {
+      font-family: var(--font-display);
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .feature-card p {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* ── PRICING ── */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .price-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 36px;
+      transition: all 0.3s;
+    }
+
+    .price-card.featured {
+      border-color: var(--accent);
+      background: linear-gradient(180deg, rgba(124,111,239,0.08) 0%, var(--surface) 100%);
+      position: relative;
+    }
+
+    .featured-label {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--accent);
+      color: white;
+      padding: 4px 16px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .price-name {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .price-amount {
+      font-family: var(--font-display);
+      font-size: 48px;
+      font-weight: 800;
+      letter-spacing: -2px;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .price-amount span {
+      font-size: 20px;
+      font-weight: 400;
+      color: var(--muted);
+    }
+
+    .price-period {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 28px;
+    }
+
+    .price-features {
+      list-style: none;
+      margin-bottom: 28px;
+    }
+
+    .price-features li {
+      padding: 8px 0;
+      font-size: 14px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .price-features li:last-child { border-bottom: none; }
+
+    .check {
+      color: var(--green);
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .price-card .btn-primary,
+    .price-card .btn-secondary {
+      width: 100%;
+      justify-content: center;
+    }
+
+    /* ── TESTIMONIALS ── */
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .testimonial-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+    }
+
+    .testimonial-stars {
+      color: #fbbf24;
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+
+    .testimonial-text {
+      font-size: 14px;
+      line-height: 1.7;
+      color: var(--text);
+      margin-bottom: 16px;
+      font-style: italic;
+    }
+
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .author-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .author-info { line-height: 1.3; }
+    .author-name { font-size: 13px; font-weight: 600; }
+    .author-role { font-size: 11px; color: var(--muted); }
+
+    /* ── CTA FINALE ── */
+    .cta-section {
+      padding: 100px 24px;
+      text-align: center;
+      position: relative;
+    }
+
+    .cta-section::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 500px;
+      height: 300px;
+      background: radial-gradient(ellipse, rgba(124,111,239,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .cta-section h2 {
+      font-family: var(--font-display);
+      font-size: clamp(32px, 5vw, 56px);
+      font-weight: 800;
+      letter-spacing: -1.5px;
+      margin-bottom: 16px;
+      line-height: 1.1;
+    }
+
+    .cta-section p {
+      color: var(--muted);
+      font-size: 16px;
+      margin-bottom: 36px;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--muted);
+      font-size: 13px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    footer a {
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    footer a:hover { color: var(--text); }
+
+    .footer-links { display: flex; gap: 24px; }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.6s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── DIVIDER ── */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+      margin: 0 40px;
+    }
+
+    @media (max-width: 768px) {
+      nav { padding: 12px 20px; }
+      .nav-links { display: none; }
+      .hero-stats { gap: 24px; flex-wrap: wrap; }
+      .demo-grid { grid-template-columns: 1fr; }
+      .demo-arrow { display: none; }
+      footer { flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">⚡ CVFit</div>
+    <ul class="nav-links">
+      <li><a href="#come-funziona">Come funziona</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#prezzi">Prezzi</a></li>
+      <li><a href="#" class="btn-nav">Installa gratis →</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-glow"></div>
+
+    <div class="badge">
+      <span class="badge-dot"></span>
+      Disponibile gratis su Chrome Web Store
+    </div>
+
+    <h1>
+      Il tuo CV <span class="highlight">perfetto</span>
+      <span class="line2">per ogni offerta.</span>
+    </h1>
+
+    <p class="hero-sub">
+      CVFit analizza l'offerta di lavoro e riscrive il tuo CV con le keyword giuste in 15 secondi.
+      Supera i filtri ATS, ottieni più colloqui.
+    </p>
+
+    <div class="hero-cta">
+      <a href="#" class="btn-primary">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Aggiungi a Chrome — È gratis
+      </a>
+      <a href="#come-funziona" class="btn-secondary">
+        Guarda la demo →
+      </a>
+    </div>
+
+    <div class="hero-stats">
+      <div class="stat">
+        <span class="stat-num">75%</span>
+        <span class="stat-label">dei CV scartati da ATS</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">15s</span>
+        <span class="stat-label">per ottimizzare il CV</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">3×</span>
+        <span class="stat-label">più risposte in media</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- DEMO MOCKUP -->
+  <section class="demo-section reveal">
+    <div class="demo-wrapper">
+      <div class="demo-title">✦ Prima → Dopo</div>
+      <div class="demo-grid">
+        <div class="demo-card">
+          <div class="demo-card-label">📄 CV originale</div>
+          <div class="demo-text">
+            <strong style="color: #eeeef5; font-size: 12px;">Mario Rossi — Sviluppatore</strong><br/><br/>
+            Ho lavorato in varie aziende come programmatore. Conosco JavaScript e altri linguaggi.
+            Ho fatto alcuni progetti web e collaborato con team diversi. Buona conoscenza dell'inglese.
+          </div>
+        </div>
+
+        <div class="demo-arrow">
+          <span class="arrow-icon">→</span>
+          <div class="score-badge">Match 91%</div>
+        </div>
+
+        <div class="demo-card" style="border-color: rgba(124,111,239,0.3);">
+          <div class="demo-card-label" style="color: var(--accent2);">⚡ CV ottimizzato da CVFit</div>
+          <div class="demo-text">
+            <strong style="color: #eeeef5; font-size: 12px;">Mario Rossi — <span class="highlight-word">Senior Frontend Developer</span></strong><br/><br/>
+            <span class="highlight-word">5 anni</span> di esperienza nello sviluppo di applicazioni web con
+            <span class="highlight-word">React</span> e <span class="highlight-word">TypeScript</span>.
+            Ho guidato la migrazione a <span class="highlight-word">microservizi</span> in team <span class="highlight-word">Agile</span>,
+            riducendo i tempi di deploy del <span class="highlight-word">40%</span>.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- COME FUNZIONA -->
+  <section class="section" id="come-funziona">
+    <div class="section-label">Come funziona</div>
+    <h2 class="section-title">Da zero a candidatura<br/>ottimizzata in 3 step</h2>
+
+    <div class="steps-grid reveal">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <h3>Installa il plugin</h3>
+        <p>Un click su Chrome Web Store. Nessuna configurazione, nessun abbonamento richiesto per iniziare.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <h3>Vai sull'offerta</h3>
+        <p>Apri qualsiasi offerta su LinkedIn, Indeed, InfoJobs. CVFit legge automaticamente il testo.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <h3>Ottimizza e invia</h3>
+        <p>Clicca il plugin. In 15 secondi hai CV adattato, cover letter e analisi dei gap. Copia e invia.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- FEATURES -->
+  <section class="section" id="features">
+    <div class="section-label">Features</div>
+    <h2 class="section-title">Tutto quello che serve<br/>per trovare lavoro prima</h2>
+
+    <div class="features-grid reveal">
+      <div class="feature-card">
+        <div class="feature-icon">🎯</div>
+        <h3>Match Score ATS</h3>
+        <p>Vedi in percentuale quanto il tuo CV è compatibile con l'offerta. Punta a superare il 80%.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">✍️</div>
+        <h3>CV riscritto con AI</h3>
+        <p>Claude AI riscrive il tuo CV mantenendo le tue vere esperienze ma con le keyword che i selezionatori cercano.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💌</div>
+        <h3>Cover letter in secondi</h3>
+        <p>Cover letter personalizzata per ogni azienda. Niente template generici — ogni lettera è unica.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔍</div>
+        <h3>Gap Analysis</h3>
+        <p>Scopri esattamente cosa manca nel tuo profilo e come colmare i gap per quella specifica posizione.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🌍</div>
+        <h3>Multilingua</h3>
+        <p>Risponde nella lingua dell'offerta. Cerchi lavoro all'estero? CVFit ti supporta in inglese, tedesco, francese e altro.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💾</div>
+        <h3>CV salvato sempre</h3>
+        <p>Inserisci il tuo CV una volta sola. CVFit lo ricorda per ogni candidatura futura.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- TESTIMONIALS -->
+  <section class="section">
+    <div class="section-label">Testimonianze</div>
+    <h2 class="section-title">Chi l'ha usato<br/>ha trovato lavoro prima</h2>
+
+    <div class="testimonials-grid reveal">
+      <div class="testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-text">"In due settimane di uso attivo ho avuto il triplo di risposte rispetto ai mesi precedenti. Il match score mi ha fatto capire perché le mie candidature venivano ignorate."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">LB</div>
+          <div class="author-info">
+            <div class="author-name">Laura B.</div>
+            <div class="author-role">UX Designer, Milano</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-text">"Finalmente capisco perché certi CV passano e altri no. La gap analysis è oro: sapere esattamente cosa manca mi ha permesso di prepararmi meglio."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">MF</div>
+          <div class="author-info">
+            <div class="author-name">Marco F.</div>
+            <div class="author-role">Backend Developer, Roma</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-text">"La cover letter generata sembrava scritta da me, non da una macchina. Il recruiter me lo ha detto esplicitamente durante il colloquio."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">GR</div>
+          <div class="author-info">
+            <div class="author-name">Giulia R.</div>
+            <div class="author-role">Marketing Manager, Torino</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- PRICING -->
+  <section class="section" id="prezzi">
+    <div class="section-label">Prezzi</div>
+    <h2 class="section-title">Inizia gratis.<br/>Scala quando vuoi.</h2>
+
+    <div class="pricing-grid reveal">
+      <div class="price-card">
+        <div class="price-name">Free</div>
+        <div class="price-amount">€0</div>
+        <div class="price-period">per sempre</div>
+        <ul class="price-features">
+          <li><span class="check">✓</span> 5 ottimizzazioni totali</li>
+          <li><span class="check">✓</span> CV ottimizzato + cover letter</li>
+          <li><span class="check">✓</span> Match Score ATS</li>
+          <li><span class="check">✓</span> Gap Analysis</li>
+          <li style="opacity:0.4">✗ Storico candidature</li>
+          <li style="opacity:0.4">✗ Export PDF</li>
+        </ul>
+        <a href="#" class="btn-secondary">Inizia gratis</a>
+      </div>
+
+      <div class="price-card featured">
+        <div class="featured-label">⚡ Più popolare</div>
+        <div class="price-name">Pro</div>
+        <div class="price-amount">€19<span>/mese</span></div>
+        <div class="price-period">o €79 lifetime — una volta sola</div>
+        <ul class="price-features">
+          <li><span class="check">✓</span> Ottimizzazioni illimitate</li>
+          <li><span class="check">✓</span> CV ottimizzato + cover letter</li>
+          <li><span class="check">✓</span> Match Score ATS</li>
+          <li><span class="check">✓</span> Gap Analysis avanzata</li>
+          <li><span class="check">✓</span> Storico candidature</li>
+          <li><span class="check">✓</span> Export PDF diretto</li>
+        </ul>
+        <a href="#" class="btn-primary">Passa a Pro →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA FINALE -->
+  <section class="cta-section">
+    <h2>Inizia oggi.<br/>Il tuo prossimo lavoro<br/>ti aspetta.</h2>
+    <p>5 ottimizzazioni gratis. Nessuna carta di credito.</p>
+    <a href="#" class="btn-primary" style="font-size: 16px; padding: 16px 36px;">
+      Aggiungi CVFit a Chrome — Gratis
+    </a>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="nav-logo" style="font-family: 'Syne', sans-serif; font-weight: 800; font-size: 18px; background: linear-gradient(135deg, #7c6fef, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">⚡ CVFit</div>
+    <div class="footer-links">
+      <a href="#">Privacy</a>
+      <a href="#">Termini</a>
+      <a href="mailto:ciao@cvfit.app">Contatti</a>
+    </div>
+    <span>© 2025 CVFit. Tutti i diritti riservati.</span>
+  </footer>
+
+  <script>
+    // Scroll reveal animations
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  </script>
+
+</body>
+</html>
