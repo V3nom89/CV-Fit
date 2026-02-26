@@ -11,6 +11,9 @@ const stripeRoutes = require("./routes/stripe");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Necessario per Railway (proxy)
+app.set("trust proxy", 1);
+
 // ──────────────────────────────────────────────
 // MIDDLEWARE
 // ──────────────────────────────────────────────
