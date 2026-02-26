@@ -1,6 +1,6 @@
 // popup.js — Logica completa del popup CVFit
 
-const API_BASE = "https://api.cvfit.app"; // Cambia con il tuo dominio
+const API_BASE = "https://pure-energy-production.up.railway.app";
 
 // ──────────────────────────────────────────────
 // STATO GLOBALE

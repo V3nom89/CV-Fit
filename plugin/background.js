@@ -1,6 +1,6 @@
 // background.js — Service Worker del plugin
 
-const API_BASE = "http://localhost:3000";
+const API_BASE = "https://pure-energy-production.up.railway.app";
 
 // Gestione messaggi dal popup
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
