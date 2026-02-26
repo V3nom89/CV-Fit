@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CVFit</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- HEADER -->
+  <header class="header">
+    <div class="logo">
+      <span class="logo-icon">⚡</span>
+      <span class="logo-text">CVFit</span>
+    </div>
+    <div id="user-badge" class="user-badge hidden">
+      <span id="credits-count" class="credits">5 rimasti</span>
+      <button id="logout-btn" class="btn-icon" title="Esci">✕</button>
+    </div>
+  </header>
+
+  <!-- VIEW: LOGIN -->
+  <div id="view-auth" class="view">
+    <p class="tagline">Ottimizza il tuo CV per ogni offerta<br/>in <strong>15 secondi</strong> con AI.</p>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="login">Accedi</button>
+      <button class="tab" data-tab="register">Registrati</button>
+    </div>
+
+    <form id="form-login" class="form">
+      <input type="email" id="login-email" placeholder="Email" required />
+      <input type="password" id="login-password" placeholder="Password" required />
+      <button type="submit" class="btn-primary">Accedi</button>
+    </form>
+
+    <form id="form-register" class="form hidden">
+      <input type="text" id="reg-name" placeholder="Nome" required />
+      <input type="email" id="reg-email" placeholder="Email" required />
+      <input type="password" id="reg-password" placeholder="Password (min 8 caratteri)" required />
+      <button type="submit" class="btn-primary">Crea account gratuito</button>
+      <p class="hint">5 ottimizzazioni gratis, nessuna carta richiesta</p>
+    </form>
+
+    <div id="auth-error" class="error-msg hidden"></div>
+  </div>
+
+  <!-- VIEW: MAIN APP -->
+  <div id="view-main" class="view hidden">
+
+    <!-- Step 1: CV -->
+    <div id="step-cv" class="step active">
+      <label class="step-label">
+        <span class="step-num">1</span> Il tuo CV base
+      </label>
+      <textarea
+        id="cv-input"
+        placeholder="Incolla qui il testo del tuo CV...&#10;&#10;(Puoi usare sempre lo stesso per tutte le candidature)"
+        rows="7"
+      ></textarea>
+      <div class="cv-actions">
+        <button id="btn-save-cv" class="btn-secondary">💾 Salva CV</button>
+        <span id="cv-saved-badge" class="badge-saved hidden">✓ Salvato</span>
+      </div>
+    </div>
+
+    <!-- Step 2: Offerta -->
+    <div id="step-job" class="step">
+      <label class="step-label">
+        <span class="step-num">2</span> Offerta di lavoro
+      </label>
+      <div id="job-auto" class="job-auto hidden">
+        <span class="job-detected">✓ Offerta rilevata da questa pagina</span>
+        <button id="btn-reload-job" class="btn-text">Ricarica</button>
+      </div>
+      <textarea
+        id="job-input"
+        placeholder="...oppure incolla qui il testo dell'offerta di lavoro"
+        rows="4"
+      ></textarea>
+    </div>
+
+    <!-- CTA -->
+    <button id="btn-optimize" class="btn-primary btn-big">
+      ⚡ Ottimizza CV
+    </button>
+
+    <div id="credits-warning" class="credits-warning hidden">
+      Hai esaurito i crediti gratuiti. <a href="https://cvfit.app/pricing" target="_blank">Passa a Pro →</a>
+    </div>
+  </div>
+
+  <!-- VIEW: RISULTATO -->
+  <div id="view-result" class="view hidden">
+    <div class="result-header">
+      <button id="btn-back" class="btn-text">← Indietro</button>
+      <div class="match-score">
+        <span class="score-label">Match</span>
+        <span id="score-value" class="score-value">—</span>
+      </div>
+    </div>
+
+    <!-- Tabs risultato -->
+    <div class="result-tabs">
+      <button class="result-tab active" data-rtab="cv">CV Ottimizzato</button>
+      <button class="result-tab" data-rtab="cover">Cover Letter</button>
+      <button class="result-tab" data-rtab="gaps">Gap Analysis</button>
+    </div>
+
+    <div id="rtab-cv" class="result-content active">
+      <div id="cv-result" class="result-text"></div>
+      <button class="btn-copy" data-target="cv-result">📋 Copia</button>
+    </div>
+
+    <div id="rtab-cover" class="result-content hidden">
+      <div id="cover-result" class="result-text"></div>
+      <button class="btn-copy" data-target="cover-result">📋 Copia</button>
+    </div>
+
+    <div id="rtab-gaps" class="result-content hidden">
+      <div id="gaps-result" class="result-text"></div>
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div id="view-loading" class="view hidden">
+    <div class="loading-spinner"></div>
+    <p class="loading-text">Sto ottimizzando il tuo CV...</p>
+    <p class="loading-sub">L'AI sta analizzando l'offerta e adattando il tuo profilo</p>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
