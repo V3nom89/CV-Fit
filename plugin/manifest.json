@@ -18,8 +18,7 @@
   },
   "permissions": [
     "activeTab",
-    "storage",
-    "scripting"
+    "storage"
   ],
   "host_permissions": [
     "https://*.linkedin.com/*",
@@ -27,7 +26,9 @@
     "https://*.infojobs.it/*",
     "https://*.monster.it/*",
     "https://*.jobrapido.com/*",
-    "<all_urls>"
+    "https://*.glassdoor.com/*",
+    "https://*.stepstone.it/*",
+    "https://pure-energy-production.up.railway.app/*"
   ],
   "content_scripts": [
     {
@@ -35,7 +36,10 @@
         "https://*.linkedin.com/jobs/*",
         "https://*.indeed.com/*",
         "https://*.infojobs.it/*",
-        "<all_urls>"
+        "https://*.monster.it/*",
+        "https://*.jobrapido.com/*",
+        "https://*.glassdoor.com/*",
+        "https://*.stepstone.it/*"
       ],
       "js": ["content.js"],
       "run_at": "document_idle"
